@@ -1,0 +1,6 @@
+_target_: evals.datasets.nyu_ss.NYUSemantic
+root_path: data/nyu_v2   
+image_mean: imagenet
+augment_train: True
+center_crop: True
+rotateflip: False
