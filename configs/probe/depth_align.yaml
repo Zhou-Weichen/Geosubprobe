@@ -1,7 +1,7 @@
 _target_: evals.models.probes.DepthHead
 min_depth: 0.001
 max_depth: 10.0
-head_type: align1            
+head_type: align            
 prediction_type: bindepth    
 hidden_dim: 512        
 kernel_size: 3          
