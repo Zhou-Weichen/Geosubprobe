@@ -1,6 +1,6 @@
 _target_: evals.datasets.kitti.KITTI
-raw_root: /data1/toyama-colab/zhou_weichen/DATA/KITTI/Raw
-label_root: /data1/toyama-colab/zhou_weichen/DATA/KITTI/Label
+raw_root: data/KITTI/Raw
+label_root: data/KITTI/Label
 image_mean: imagenet
 augment_train: True
 frame_stride: 10
