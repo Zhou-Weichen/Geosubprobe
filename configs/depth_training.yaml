@@ -1,18 +1,18 @@
 system:
   random_seed: 8
-  num_gpus: 2
+  num_gpus: 1
   port: 12355
 note: ""
-batch_size: 8 # 12 default
+batch_size: 8 
 use_alignment: False
 lambda_align : 0.4
 defaults:
-  - optimizer: 10_epoch # 20_epoch
-  - backbone: ibot_l16
-  - dataset: nyu
+  - optimizer: 10_epoch # or 20_epoch
+  - backbone: dinov2_l14
+  - dataset: kitti
   - probe: depth_linear
   - _self_
-res:
-  residual_ckpt: ./depth_exps/MAE/mae_l16/seed8/Linear_05022026-2242_vit-mae-large_16_5-11-17-23_dense_bindepth_linear_k1_10_1.50_0.0005_0.0_16_NYUv2_NYUv2/ckpt.pth
-  svd_rank: 64
+# res:
+#   residual_ckpt: ./depth_exps/MAE/mae_l16/seed8/Linear_05022026-2242_vit-mae-large_16_5-11-17-23_dense_bindepth_linear_k1_10_1.50_0.0005_0.0_16_NYUv2_NYUv2/ckpt.pth
+#   svd_rank: 64
 

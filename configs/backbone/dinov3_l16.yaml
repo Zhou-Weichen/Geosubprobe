@@ -1,0 +1,4 @@
+_target_: evals.models.dinov3.DINOv3
+checkpoint: /home/toyama-colab/.cache/huggingface/hub/models--facebook--dinov3-vitl16-pretrain-lvd1689m/snapshots/ea8dc2863c51be0a264bab82070e3e8836b02d51
+output: dense
+layer: -1
