@@ -46,9 +46,6 @@ class DepthHead(nn.Module):
         prediction_type="bindepth",
         hidden_dim=512,
         kernel_size=1,
-        # conv1_weight=None,
-        # conv2_weight=None,
-        # conv2_bias=None,
     ):
         super().__init__()
 
@@ -73,8 +70,6 @@ class DepthHead(nn.Module):
             self.head = DPT(feat_dim, output_dim, hidden_dim, kernel_size)
         elif head_type == 'dpt-s':
             self.head = SingleLayerDPT(feat_dim, hidden_dim, output_dim, kernel_size)
-        elif head_type == "align":
-            self.head = LiteGAP8xDecoder(feat_dim[0], hidden_dim, output_dim)
         elif head_type == "mlp":
             self.head = Litenonlinear(feat_dim, hidden_dim, output_dim, kernel_size)
         else:
@@ -180,6 +175,7 @@ class ResidualConvUnit(nn.Module):
     def forward(self, x):
         return self.conv(x) + x
 
+
 class DPT(nn.Module):
     def __init__(self, input_dims, output_dim, hidden_dim=512, kernel_size=3):
         super().__init__()
@@ -257,6 +253,7 @@ class Linear(nn.Module):
         feats = interpolate(feats, scale_factor=4, mode="bilinear", align_corners=True)
         return self.conv(feats)
 
+
 class Litenonlinear(nn.Module):
     def __init__(self, input_dim, hidden_dim, output_dim, kernel_size=1):
         super().__init__()
@@ -279,8 +276,6 @@ class Litenonlinear(nn.Module):
         feats = interpolate(feats, scale_factor=4, mode="bilinear", align_corners=True)
         return self.conv(feats)
         
-
-
 
 class MultiscaleHead(nn.Module):
     def __init__(self, input_dims, output_dim, hidden_dim=512, kernel_size=1):
@@ -310,7 +305,6 @@ class MultiscaleHead(nn.Module):
         feats = interpolate(feats, scale_factor=4, mode="bilinear", align_corners=True)
         return self.conv_out(feats)
 
-############################################## Single-scale DPT #####################################################
 
 class SingleLayerDPT(nn.Module):
     def __init__(self, input_dims, hidden_dim, output_dim, kernel_size=3):
@@ -334,45 +328,4 @@ class SingleLayerDPT(nn.Module):
         x = interpolate(x, scale_factor=2, mode="bilinear", align_corners=True)
         return x
 
-class LiteGAP8xDecoder(nn.Module):
-    def __init__(self, in_channels, hidden_dim=128, out_channels=1): 
-        super().__init__()
-        
-        self.geo_probe = nn.Sequential(
-            nn.Conv2d(in_channels, hidden_dim, 1, bias=False),
-            nn.GroupNorm(8, hidden_dim),
-            nn.GELU(),
-            nn.Conv2d(hidden_dim, in_channels//2, kernel_size=1) 
-        )
-
-        self.feature_proj = nn.Conv2d(in_channels, hidden_dim, 1, bias=False)
-
-        self.up1 = nn.Sequential(
-            nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
-            LiteRefineUnit(hidden_dim + in_channels//2, hidden_dim) # 1/4
-        )
-        
-        self.up2 = nn.Sequential(
-            nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
-            LiteRefineUnit(hidden_dim, hidden_dim // 2) # 1/2
-        )
-        
-        self.up3 = nn.Sequential(
-            nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
-            LiteRefineUnit(hidden_dim // 2, hidden_dim // 4) # 8x
-        )
-
-        self.final_head = nn.Conv2d(hidden_dim // 4, out_channels, kernel_size=1)
-
-    def forward(self, feat):
-        geo_feat = self.geo_probe(feat) 
-        x = self.feature_proj(feat)
-        
-        x = torch.cat([x, geo_feat], dim=1)
-        
-        x = self.up1(x) 
-        x = self.up2(x) 
-        x = self.up3(x) 
-        
-        return geo_feat, self.final_head(x)
 
