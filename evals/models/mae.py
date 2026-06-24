@@ -4,7 +4,7 @@ import torch
 from torch import nn
 from transformers import ViTMAEForPreTraining
 
-from .utils import get_2d_sincos_pos_embed, tokens_to_output
+from .utils import center_padding, get_2d_sincos_pos_embed, tokens_to_output
 
 
 class MAE(nn.Module):
@@ -57,8 +57,12 @@ class MAE(nn.Module):
         self.layer = "-".join(str(_x) for _x in self.multilayers)
 
     def resize_pos_embed(self, image_size):
-        assert image_size[0] % self.patch_size == 0
-        assert image_size[1] % self.patch_size == 0
+        # round up to a patch_size multiple so non-divisible inputs (e.g. KITTI
+        # 350x1218 with patch=16) still get a valid grid; forward() pads images
+        # to match via center_padding.
+        h = (image_size[0] + self.patch_size - 1) // self.patch_size * self.patch_size
+        w = (image_size[1] + self.patch_size - 1) // self.patch_size * self.patch_size
+        image_size = (h, w)
         self.feat_h = image_size[0] // self.patch_size
         self.feat_w = image_size[1] // self.patch_size
         embed_dim = self.vit.config.hidden_size
@@ -89,6 +93,9 @@ class MAE(nn.Module):
         return embeddings
 
     def forward(self, images):
+        # pad to a patch_size multiple (matches dino.py / ibot.py)
+        images = center_padding(images, self.patch_size)
+
         # check if positional embeddings are correct
         if self.image_size != images.shape[-2:]:
             self.resize_pos_embed(images.shape[-2:])
@@ -97,18 +104,19 @@ class MAE(nn.Module):
         head_mask = self.vit.get_head_mask(None, self.vit.config.num_hidden_layers)
 
         # ---- hidden ----
-        embedding_output = self.embed_forward(self.vit.embeddings, images)
-        encoder_outputs = self.vit.encoder(
-            embedding_output,
-            head_mask=head_mask,
-            output_attentions=self.vit.config.output_attentions,
-            output_hidden_states=True,
-            return_dict=self.vit.config.return_dict,
-        )
+        # iterate encoder layers manually -- transformers >=4.57 dropped the
+        # output_hidden_states / return_dict kwargs from ViTEncoder.forward,
+        # and this matches the pattern in dino.py (forward) anyway.
+        x = self.embed_forward(self.vit.embeddings, images)
+        hidden_states = [x]
+        for i, layer_mod in enumerate(self.vit.encoder.layer):
+            layer_head_mask = head_mask[i] if head_mask is not None else None
+            x = layer_mod(x, layer_head_mask)
+            hidden_states.append(x)
 
         outputs = []
         for layer_i in self.multilayers:
-            x_i = encoder_outputs.hidden_states[layer_i]
+            x_i = hidden_states[layer_i]
             x_i = tokens_to_output(
                 self.output, x_i[:, 1:], x_i[:, 0], (self.feat_h, self.feat_w)
             )
