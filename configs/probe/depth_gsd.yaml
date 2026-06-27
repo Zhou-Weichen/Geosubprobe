@@ -1,7 +1,0 @@
-_target_: evals.models.probes.DepthHead
-min_depth: 0.001
-max_depth: 10.0
-head_type: gsd
-prediction_type: bindepth
-
-
