@@ -15,36 +15,6 @@ cd ../data_processing
 python resize_navi.py
 ```
 
-## ScanNet Correspondence Test Split 
-
-[ScanNet](https://www.scan-net.org/) is a large dataset of RGB-D video that depicts indoor scene.  We use the [SuperGlue](https://github.com/magicleap/SuperGluePretrainedNetwork) test split which samples 1500 image pairs for correspondence estimation. Please use the script below which downloads the split from the [LoFTR](https://github.com/zju3dv/LoFTR/) website.
-
-```bash
-# Move to data directory 
-cd data/
-
-# download the tar file provided by LoFTR
-gdown --id 1wtl-mNicxGlXZ-UQJxFnKuWPvvssQBwd
-tar -xvf scannet_test_1500.tar
-rm  scannet_test_1500.tar
-
-cd scannet_test_1500
-wget https://raw.githubusercontent.com/zju3dv/LoFTR/master/assets/scannet_test_1500/intrinsics.npz
-wget https://raw.githubusercontent.com/zju3dv/LoFTR/master/assets/scannet_test_1500/test.npz 
-```
-
-## SPair-71k
-
-The [SPair](https://cvlab.postech.ac.kr/research/SPair-71k/) dataset consists of image pair depicting instances of the same class with keypoint annotations as well as attributes of the image pair such as degree of viewpoint variation.  We additionally annotate the names of the keypoints to allow us to interpret the confusion matrices. 
-
-```bash
-# download and extract the dataset
-cd data/
-wget http://cvlab.postech.ac.kr/research/SPair-71k/data/SPair-71k.tar.gz
-tar -xvf SPair-71k.tar.gz
-rm SPair-71k.tar.gz
-```
-
 
 ## NYU dataset 
 
@@ -83,3 +53,13 @@ rmdir surfacenormal_metadata
 cd ../../data_processing
 python create_nyu_pkl.py
 ```
+
+## KITTI Dataset
+
+Download the KITTI dataset from the official website: https://www.cvlibs.net/datasets/kitti/
+
+> **Note:** Access to the dataset may require registration and acceptance of the KITTI terms of use.
+
+Please download the **Raw Data Download Script** (~1 MB) from the **Raw Data** page and use it to download the raw KITTI sequences. In addition, download the **Annotated Depth Maps** dataset (~14 GB) from the **Depth** page.
+
+Please place the data downloaded using the Raw Data download script under `./DATA/KITTI/Raw/`, and the annotated depth maps under `./DATA/KITTI/Label/`. Please ensure that the directory structure matches the paths specified in the configuration files.
