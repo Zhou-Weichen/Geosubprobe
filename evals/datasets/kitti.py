@@ -4,15 +4,6 @@ KITTI depth dataset for probe training.
 Expects the standard KITTI Depth Prediction Benchmark layout:
     <raw_root>/<date>/<date>_drive_XXXX_sync/image_02/data/<frame>.png
     <label_root>/{train,val}/<date>_drive_XXXX_sync/proj_depth/groundtruth/image_02/<frame>.png
-
-Depth PNG is uint16 with the standard KITTI encoding: meters = uint16 / 256.0,
-and 0 marks invalid pixels. The community-standard mask is
-``(depth > min_depth) & (depth < max_depth)``; out-of-range pixels are zeroed
-so downstream loss/eval (which both gate on ``depth > 0``) ignore them.
-
-Frames are subsampled by ``frame_stride`` (default 10). KITTI is 10 Hz video,
-so adjacent frames are highly redundant; stride 10 reduces ~42.9k train frames
-to ~4.3k while preserving all 138 drives' diversity.
 """
 import os
 
