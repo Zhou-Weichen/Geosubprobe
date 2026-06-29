@@ -33,6 +33,7 @@ class iBOT(torch.nn.Module):
         ckpt_name, ckpt_url_path = model_dict[model_type]
         ckpt_path = Path(__file__).parent / f"checkpoint_weights/{ckpt_name}.pth"
         if not ckpt_path.exists():
+            ckpt_path.parent.mkdir(parents=True, exist_ok=True)
             download_path = f"{BASE_URL}/{ckpt_url_path}"
             urlretrieve(download_path, ckpt_path)
 
