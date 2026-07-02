@@ -2,8 +2,8 @@
 
 # Understanding Geometric Representations in Self-Supervised Vision Transformers via Subspace Intervention
 
-<p>
-<strong>ECCV 2026</strong>
+<p align="center">
+🎉 <b>Accepted to ECCV 2026</b>
 </p>
 
 <p>
