@@ -1,0 +1,5 @@
+_target_: evals.models.probes.SemanticHead
+head_type: dpt            
+hidden_dim: 512        
+kernel_size: 3         
+output_dim: 41
