@@ -15,19 +15,20 @@
 <a href="https://sites.google.com/view/chao-zhang/profile">Chao Zhang</a><sup>1†</sup>
 </p>
 
-<p>
+<sup>†</sup> Corresponding author.
+
 <sup>1</sup> University of Toyama &nbsp;&nbsp;
 <sup>2</sup> University of Fukui &nbsp;&nbsp;
 <sup>3</sup> Chukyo University &nbsp;&nbsp;
-<sup>4</sup> JAIST
-</p>
-
-<p>
+<sup>4</sup> Japan Advanced Institute of Science and Technology &nbsp;&nbsp;
 
 [![Paper](https://img.shields.io/badge/Paper-ECCV%202026-red)](https://arxiv.org/abs/2607.01987)
 [![Project](https://img.shields.io/badge/Project-Homepage-blue)](https://github.com/Zhou-Weichen/Geosubprobe)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
+
+<p align="center">
+  <img src="assets/framework.png" width="90%">
 </p>
 
 </div>
