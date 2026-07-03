@@ -1,6 +1,40 @@
 import torch
 import torch.nn as nn
 from torch.nn.functional import interpolate
+import torch.nn.functional as F
+
+class SemanticHead(nn.Module):
+    def __init__(
+        self,
+        feat_dim,
+        output_dim=41,     
+        head_type="linear",
+        hidden_dim=512,
+        kernel_size=1,
+    ):
+        super().__init__()
+
+        self.kernel_size = kernel_size
+        self.output_dim = output_dim
+        self.name = f"semantic_{head_type}_k{kernel_size}"
+
+        if head_type == "linear":
+            self.head = Linear(feat_dim, output_dim, kernel_size)
+        elif head_type == "multiscale":
+            self.head = MultiscaleHead(feat_dim, output_dim, hidden_dim, kernel_size)
+        elif head_type == "dpt":
+            self.head = DPT(feat_dim, output_dim, hidden_dim, kernel_size)
+        elif head_type == "mlp":
+            self.head = Litenonlinear(feat_dim, hidden_dim, output_dim, kernel_size)
+        elif head_type == 'dpt-s':
+            self.head = SingleLayerDPT(feat_dim, hidden_dim, output_dim, kernel_size)
+        else:
+            raise ValueError(f"Unknown head type: {head_type}")
+
+    def forward(self, feats):
+
+        logits = self.head(feats)
+        return logits
 
 
 class SurfaceNormalHead(nn.Module):
