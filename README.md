@@ -42,7 +42,6 @@ conda env create -f environment.yml
 conda activate geosubprobe
 
 pip3 install torch torchvision
-pip install -r requirements.txt
 pip install -e .
 ```
 
