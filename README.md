@@ -112,5 +112,21 @@ class DepthHead(nn.Module):
 Create or modify a configuration file under `configs/probe/` to map Hydra to your new head_type.
 
 
+## ✍️ Citation
+
+If you find this project or our paper helpful, please consider citing it:
+
+```bibtex
+@misc{zhou2026understandinggeometricrepresentationsselfsupervised,
+      title={Understanding Geometric Representations in Self-Supervised Vision Transformers via Subspace Intervention}, 
+      author={Weichen Zhou and Yawen Zou and Chunzhi Gu and Ran Dong and Haoran Xie and Chao Zhang},
+      year={2026},
+      eprint={2607.01987},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2607.01987}, 
+}
+```
+
 ## Acknowledgements
 This project is largely built upon [Probe3D](https://github.com/mbanani/probe3d). We thank the authors for open-sourcing their excellent implementation, which served as the foundation for our work.
