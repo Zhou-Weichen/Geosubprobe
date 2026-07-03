@@ -32,6 +32,24 @@
 
 </div>
 
+## Installation
+
+
+```bash
+git clone https://github.com/Zhou-Weichen/Geosubprobe.git
+cd Geosubprobe
+
+conda env create -f environment.yml
+conda activate geosubprobe
+
+pip3 install torch torchvision
+pip install -r requirements.txt
+pip install -e .
+```
+
+
+
+
 
 ## Acknowledgements
 This project is largely built upon [Probe3D](https://github.com/mbanani/probe3d). We thank the authors for open-sourcing their excellent implementation, which served as the foundation for our work.
