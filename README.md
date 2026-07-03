@@ -56,7 +56,19 @@ We provide a sample script `run_all_layer.sh` to train different probes. It supp
 # Run the full training pipeline (Multi-layer & Single-layer for all backbones)
 bash run_all_layer.sh
 ```
+### Configurable Parameters
 
+| Parameter | Description | Available Options |
+| :--- | :--- | :--- |
+| **`probe`** | Probe architecture structure | `depth_linear`, `depth_dpt`, `depth_mlp`, `depth_dpt-s` |
+| **`backbone`**| Feature extractor model | `dinov2_l14`, `mae_l16`, `ibot_l16`, `dinov2_b14`, `mae_b16`, `ibot_b16`, `dinov3_l16`, etc.|
+| **`dataset`** | Target training dataset | `kitti`, `nyu`, `navi`|
+| **`optimizer`**| Training epochs configuration | `20_epoch` , `10_epoch` |
+| **`CUDA`** | Target GPU index | `0` , `1`, `2`, ... |
+
+### Core Commands
+* **Multi-Layer Input (4-Layer Fusion):** Set `+backbone.return_multilayer=True`
+* **Single-Layer Input (Layer-wise):** Set `+backbone.return_multilayer=False` and `++backbone.layer=${i}` (from `0` to `num of layer`).
 
 
 
@@ -96,6 +108,8 @@ class DepthHead(nn.Module):
             self.head = MyCustomHead(feat_dim, hidden_dim, output_dim, kernel_size)
         ...
 ```
+###  2. Add Configuration YAML File
+Create or modify a configuration file under `configs/probe/` to map Hydra to your new head_type.
 
 
 ## Acknowledgements
