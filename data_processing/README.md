@@ -62,4 +62,4 @@ Download the KITTI dataset from the official website: https://www.cvlibs.net/dat
 
 Please download the **Raw Data Download Script** (~1 MB) from the **Raw Data** page and use it to download the raw KITTI sequences. In addition, download the **Annotated Depth Maps** dataset (~14 GB) from the **Depth** page.
 
-Please place the data downloaded using the Raw Data download script under `./DATA/KITTI/Raw/`, and the annotated depth maps under `./DATA/KITTI/Label/`. Please ensure that the directory structure matches the paths specified in the configuration files.
+Please place the data downloaded using the Raw Data download script under `./data/KITTI/Raw/`, and the annotated depth maps under `./data/KITTI/Label/`. Please ensure that the directory structure matches the paths specified in the configuration files.
