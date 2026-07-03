@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "geosubprobe"
+version = "0.1.0"
+description = "Official implementation of Geosubprobe"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+authors = [
+    { name = "Weichen Zhou" }
+]
+
+dependencies = []
+
+[tool.setuptools.packages.find]
+include = ["evals*"]
