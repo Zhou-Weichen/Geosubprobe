@@ -1,6 +1,6 @@
 <div align="center">
 
-# Understanding Geometric Representations in Self-Supervised Vision Transformers via Subspace Intervention
+# Understanding Geometric Representations in Self-Supervised Vision Transformers via Subspace Intervention #
 
 <p align="center">
 🎉 <b>Accepted to ECCV 2026</b>
@@ -33,7 +33,7 @@
 
 </div>
 
-## Installation
+## 📦 Installation
 ```bash
 git clone https://github.com/Zhou-Weichen/Geosubprobe.git
 cd Geosubprobe
@@ -45,12 +45,57 @@ pip3 install torch torchvision
 pip install -e .
 ```
 
-## Dataset Preparation
+## 📅 Dataset Preparation
 Please refer to [data_processing/README.md](data_processing/README.md) for detailed instructions on downloading and preprocessing all datasets.
 
+## 🚀 Probe Training
+
+We provide a sample script `run_all_layer.sh` to train different probes. It supports both multi-layer feature fusion (4 layers) and single-layer feature training modes.
+
+```bash
+# Run the full training pipeline (Multi-layer & Single-layer for all backbones)
+bash run_all_layer.sh
+```
 
 
 
+
+
+
+## 🧩 Custom Probe Extension
+
+You can easily implement your own probe structure by defining a custom head inside `evals/models/probes.py` and registering it to the `head_type` mapping.
+
+### 1. Add Custom Head to Probe Classes
+Open `evals/models/probes.py`, define your custom layer/network, and add it into the `head_type` routing :
+
+```python
+# evals/models/probes.py
+
+# Step 1: Define your custom head architecture
+class MyCustomHead(nn.Module):
+    def __init__(self, input_dim, hidden_dim, output_dim, kernel_size=1):
+        super().__init__()
+        padding = kernel_size // 2
+        self.net = nn.Sequential(
+            nn.Conv2d(input_dim, hidden_dim, kernel_size, padding=padding),
+            nn.BatchNorm2d(hidden_dim),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(hidden_dim, output_dim, kernel_size, padding=padding)
+        )
+    def forward(self, x):
+        return self.net(x)
+
+# Step 2: Register it inside the DepthHead __init__
+class DepthHead(nn.Module):
+    def __init__(self, feat_dim, head_type="multiscale", ...):
+        ...
+        if head_type == "linear":
+            self.head = Linear(feat_dim, output_dim, kernel_size)
+        elif head_type == "my_custom_type":  # <--- Add your custom head type here
+            self.head = MyCustomHead(feat_dim, hidden_dim, output_dim, kernel_size)
+        ...
+```
 
 
 ## Acknowledgements
