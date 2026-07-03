@@ -21,6 +21,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+# Modified by Weichen Zhou, 2026
+
 from __future__ import annotations
 
 import os
@@ -44,7 +46,7 @@ from tqdm import tqdm
 import wandb
 
 from evals.datasets.builder import build_loader
-from evals.utils.losses import DepthLoss,alignment_loss, attention_alignment_loss
+from evals.utils.losses import DepthLoss, attention_alignment_loss
 from evals.utils.metrics import evaluate_depth, match_scale_and_shift
 from evals.utils.optim import cosine_decay_linear_warmup
 
@@ -192,7 +194,7 @@ def train(
 
 
 def validate(
-    model, probe, loader, loss_fn, verbose=True, scale_invariant=False, aggregate=True, use_alignment=True,
+    model, probe, loader, loss_fn, verbose=True, scale_invariant=False, aggregate=True, use_alignment=False,
 ):
     total_loss = 0.0
     metrics = None
@@ -208,16 +210,9 @@ def validate(
             
             if use_alignment:
                 feats = model(images)
-                shallow_gt = feats[0].detach()
                 deep_feat = feats[1].detach()
+                _, pred = probe(deep_feat)
                 
-                all_dim = shallow_gt.shape[1]
-                shallow_gt = shallow_gt[:, : all_dim // 2]
-
-                pred_shallow, pred = probe(deep_feat)
-                # pred_shallow = pred_shallow.detach()
-                # if pred_shallow is not None:
-                #     pred_shallow = pred_shallow.detach()
                                                 
             else:   
                 feat = model(images)
@@ -254,20 +249,17 @@ def train_model(rank, world_size, cfg):
     if world_size > 1:
         ddp_setup(rank, world_size, cfg.system.port)
 
-    # ===== GET DATA LOADERS =====
     # validate and test on single gpu
     trainval_loader = build_loader(cfg.dataset, "trainval", cfg.batch_size, world_size)
     test_loader = build_loader(cfg.dataset, "test", cfg.batch_size, 1)
     trainval_loader.dataset.__getitem__(0)
 
-    # ===== Get models =====
     model = instantiate(cfg.backbone)
     probe = instantiate(
         cfg.probe, feat_dim=model.feat_dim, max_depth=trainval_loader.dataset.max_depth
     )
 
     # setup experiment name
-    # === job info
     timestamp = datetime.now().strftime("%d%m%Y-%H%M")
     train_dset = trainval_loader.dataset.name
     test_dset = test_loader.dataset.name
@@ -324,6 +316,9 @@ def train_model(rank, world_size, cfg):
         model = DDP(model, device_ids=[rank], find_unused_parameters=True)
         probe = DDP(probe, device_ids=[rank])
 
+    eval_model = model.module if world_size > 1 else model
+    eval_probe = probe.module if world_size > 1 else probe
+
     if cfg.optimizer.model_lr == 0:
         optimizer = torch.optim.AdamW(
             [{"params": probe.parameters(), "lr": cfg.optimizer.probe_lr}]
@@ -343,36 +338,7 @@ def train_model(rank, world_size, cfg):
     )
     scheduler = LambdaLR(optimizer, lr_lambda=lambda_fn)
 
-    ##########################  SGD  #############################
-    # momentum = getattr(cfg.optimizer, 'momentum', 0.9)
-    # weight_decay = getattr(cfg.optimizer, 'weight_decay', 0.01)
-    # sgd_lr_factor = 10
-    
-    # if cfg.optimizer.model_lr == 0:
-    #     optimizer = torch.optim.SGD(
-    #         [{"params": probe.parameters(), "lr": cfg.optimizer.probe_lr * sgd_lr_factor}],
-    #         momentum=momentum,
-    #         weight_decay=weight_decay
-    #     )
-    # else:
-    #     optimizer = torch.optim.SGD(
-    #         [
-    #             {"params": probe.parameters(), "lr": cfg.optimizer.probe_lr * sgd_lr_factor},
-    #             {"params": model.parameters(), "lr": cfg.optimizer.model_lr * sgd_lr_factor},
-    #         ],
-    #         momentum=momentum,
-    #         weight_decay=weight_decay
-    #     )
-    
-    # lambda_fn = lambda epoch: cosine_decay_linear_warmup(
-    #     epoch,
-    #     cfg.optimizer.n_epochs * len(trainval_loader),
-    #     cfg.optimizer.warmup_epochs * len(trainval_loader),
-    # )
-    # scheduler = LambdaLR(optimizer, lr_lambda=lambda_fn)
-    ############################################################
-    
-    loss_fn = DepthLoss()
+    loss_fn = DepthLoss(max_depth=trainval_loader.dataset.max_depth)
 
     train(
         model,
@@ -394,7 +360,7 @@ def train_model(rank, world_size, cfg):
         logger.info(f"Evaluating on test split of {test_dset}")
 
         # test_sa_loss, test_sa_metrics = validate(model, probe, test_loader, loss_fn)
-        test_sa_loss, test_sa_metrics = validate(model.module, probe.module, test_loader, loss_fn, use_alignment = cfg.use_alignment)
+        test_sa_loss, test_sa_metrics = validate(eval_model, eval_probe, test_loader, loss_fn, use_alignment = cfg.use_alignment)
         logger.info(f"Scale-Aware Final test loss       | {test_sa_loss:.4f}")
         for metric in test_sa_metrics:
             logger.info(f"Final test SA {metric:10s} | {test_sa_metrics[metric]:.4f}")
@@ -402,7 +368,7 @@ def train_model(rank, world_size, cfg):
 
         # get scale invariant
         test_si_loss, test_si_metrics = validate(
-            model, probe, test_loader, loss_fn, scale_invariant=True, use_alignment = cfg.use_alignment
+            eval_model, eval_probe, test_loader, loss_fn, scale_invariant=True, use_alignment = cfg.use_alignment
         )
         logger.info(f"Scale-Invariant Final test loss       | {test_si_loss:.4f}")
         for metric in test_si_metrics:
@@ -419,8 +385,8 @@ def train_model(rank, world_size, cfg):
         ckpt_path = exp_path / "ckpt.pth"
         checkpoint = {
             "cfg": cfg,
-            "model": model.module.state_dict(),
-            "probe": probe.module.state_dict(),
+            "model": eval_model.state_dict(),
+            "probe": eval_probe.state_dict(),
         }
         torch.save(checkpoint, ckpt_path)
         logger.info(f"Saved checkpoint at {ckpt_path}")
@@ -435,9 +401,6 @@ def train_model(rank, world_size, cfg):
 def main(cfg: DictConfig):
     set_seed(cfg.system.random_seed)
 
-    # from loguru import logger
-    # logger.info(f"Checking Reproducibility: Seed set to {seed}")
-    
     world_size = cfg.system.num_gpus
     if world_size > 1:
         mp.spawn(train_model, args=(world_size, cfg), nprocs=world_size)
