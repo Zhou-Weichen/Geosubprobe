@@ -110,6 +110,51 @@ def get_navi_transforms(
     return image_transform, target_transform, shared_transform
 
 
+def get_kitti_transforms(
+    image_mean, image_size=None, augment=False, additional_targets=None
+):
+    """
+    Image transforms for KITTI depth probing.
+
+    Wide-aspect outdoor scenes: keep deterministic bottom-center crop in the
+    dataset itself, do NOT random-resized-crop here (would distort), and never
+    rotate (KITTI sky/road topology is anisotropic). Only HorizontalFlip and
+    ColorJitter are safe.
+    """
+    if image_mean == "clip":
+        mean = [0.48145466, 0.4578275, 0.40821073]
+        std = [0.26862954, 0.26130258, 0.27577711]
+    elif image_mean == "imagenet":
+        mean = [0.485, 0.456, 0.406]
+        std = [0.229, 0.224, 0.225]
+    elif image_mean == "None":
+        mean = [0.0, 0.0, 0.0]
+        std = [1.0, 1.0, 1.0]
+    else:
+        raise ValueError()
+
+    image_transform = tv_transforms.Compose(
+        [tv_transforms.ToTensor(), tv_transforms.Normalize(mean=mean, std=std)]
+    )
+
+    if augment:
+        assert additional_targets is not None
+        image_transform.transforms.insert(
+            -1,
+            tv_transforms.RandomApply(
+                [tv_transforms.ColorJitter(0.2, 0.2, 0.2, 0.2)], p=0.8
+            ),
+        )
+        shared_transform = A_transforms.Compose(
+            [A_transforms.HorizontalFlip(p=0.5)],
+            additional_targets=additional_targets,
+        )
+    else:
+        shared_transform = None
+
+    return image_transform, shared_transform
+
+
 def get_nyu_transforms(
     image_mean, image_size=None, augment=False, additional_targets=None, rotateflip=True
 ):
