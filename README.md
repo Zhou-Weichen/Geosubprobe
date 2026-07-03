@@ -24,7 +24,7 @@
 
 <p>
 
-[![Paper](https://img.shields.io/badge/Paper-ECCV%202026-red)](https://github.com/Zhou-Weichen/Geosubprobe)
+[![Paper](https://img.shields.io/badge/Paper-ECCV%202026-red)](https://arxiv.org/abs/2607.01987)
 [![Project](https://img.shields.io/badge/Project-Homepage-blue)](https://github.com/Zhou-Weichen/Geosubprobe)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
