@@ -33,8 +33,6 @@
 </div>
 
 ## Installation
-
-
 ```bash
 git clone https://github.com/Zhou-Weichen/Geosubprobe.git
 cd Geosubprobe
@@ -46,6 +44,10 @@ pip3 install torch torchvision
 pip install -r requirements.txt
 pip install -e .
 ```
+
+## Dataset Preparation
+Please refer to [data_processing/README.md](data_processing/README.md) for detailed instructions on downloading and preprocessing all datasets.
+
 
 
 
