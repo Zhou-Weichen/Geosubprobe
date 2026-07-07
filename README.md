@@ -117,11 +117,11 @@ Create or modify a configuration file under `configs/probe/` to map Hydra to you
 If you find this project or our paper helpful, please consider citing it:
 
 ```bibtex
-@inproceedings{zhou2026understanding,
-  title     = {Understanding Geometric Representations in Self-Supervised Vision Transformers via Subspace Intervention},
-  author    = {Zhou, Weichen and Zou, Yawen and Gu, Chunzhi and Dong, Ran and Xie, Haoran and Zhang, Chao},
-  booktitle = {Proceedings of the European Conference on Computer Vision (ECCV)},
-  year      = {2026}
+@inproceedings{Zhou2026UnderstandingGR,
+  title={Understanding Geometric Representations in Self-Supervised Vision Transformers via Subspace Intervention},
+  author={Zhou, Weichen and Zou, Yawen and Gu, Chunzhi and Dong, Ran and Xie, Haoran and Zhang, Chao},
+  booktitle = {Proceedings of the European Conference on Computer Vision (ECCV)},
+  year={2026},
 }
 ```
 
