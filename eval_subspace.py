@@ -2,7 +2,8 @@
 # Released under the MIT License (see the LICENSE file at the repository root).
 #
 # This file implements the Subspace Intervention method proposed in our paper.
-
+# It builds on infrastructure from Probe3D (https://github.com/mbanani/probe3d),
+# Copyright (c) 2024 Mohamed El Banani, also released under the MIT License.
 
 from __future__ import annotations
 
