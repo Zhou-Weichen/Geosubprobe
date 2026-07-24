@@ -23,6 +23,7 @@
 <sup>4</sup> Japan Advanced Institute of Science and Technology &nbsp;&nbsp;
 
 [![Paper](https://img.shields.io/badge/Paper-ECCV%202026-red)](https://arxiv.org/abs/2607.01987)
+[![Project](https://img.shields.io/badge/Project-Homepage-blue)](https://zhou-weichen.github.io/Geosubprobe-project/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 
