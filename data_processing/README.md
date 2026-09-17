@@ -28,8 +28,8 @@ cd data
 unzip data1.zip
 unzip data2.zip
 mkdir nyu_geonet
-mv data1/* nyu_geonet/.
-mv data2/* nyu_geonet/.
+mv data1/* nyuv2_geonet/.
+mv data2/* nyuv2_geonet/.
 rmdir data1 data2
 ```
 
